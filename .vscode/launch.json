@@ -1,0 +1,93 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "type": "java",
+      "request": "launch",
+      "name": "Client",
+      "presentation": {
+        "group": "Mod Development - the_protocol",
+        "order": 0
+      },
+      "projectName": "the_protocol",
+      "mainClass": "net.neoforged.devlaunch.Main",
+      "args": [
+        "@C:\\Users\\Slayer\\Downloads\\the_protocol\\build\\moddev\\clientRunProgramArgs.txt"
+      ],
+      "vmArgs": [
+        "@C:\\Users\\Slayer\\Downloads\\the_protocol\\build\\moddev\\clientRunVmArgs.txt",
+        "-Dfml.modFolders\u003dthe_protocol%%C:\\Users\\Slayer\\Downloads\\the_protocol\\bin\\main"
+      ],
+      "cwd": "${workspaceFolder}\\run",
+      "env": {},
+      "console": "internalConsole",
+      "shortenCommandLine": "none"
+    },
+    {
+      "type": "java",
+      "request": "launch",
+      "name": "Data",
+      "presentation": {
+        "group": "Mod Development - the_protocol",
+        "order": 1
+      },
+      "projectName": "the_protocol",
+      "mainClass": "net.neoforged.devlaunch.Main",
+      "args": [
+        "@C:\\Users\\Slayer\\Downloads\\the_protocol\\build\\moddev\\dataRunProgramArgs.txt"
+      ],
+      "vmArgs": [
+        "@C:\\Users\\Slayer\\Downloads\\the_protocol\\build\\moddev\\dataRunVmArgs.txt",
+        "-Dfml.modFolders\u003dthe_protocol%%C:\\Users\\Slayer\\Downloads\\the_protocol\\bin\\main"
+      ],
+      "cwd": "${workspaceFolder}\\run",
+      "env": {},
+      "console": "internalConsole",
+      "shortenCommandLine": "none"
+    },
+    {
+      "type": "java",
+      "request": "launch",
+      "name": "GameTestServer",
+      "presentation": {
+        "group": "Mod Development - the_protocol",
+        "order": 2
+      },
+      "projectName": "the_protocol",
+      "mainClass": "net.neoforged.devlaunch.Main",
+      "args": [
+        "@C:\\Users\\Slayer\\Downloads\\the_protocol\\build\\moddev\\gameTestServerRunProgramArgs.txt"
+      ],
+      "vmArgs": [
+        "@C:\\Users\\Slayer\\Downloads\\the_protocol\\build\\moddev\\gameTestServerRunVmArgs.txt",
+        "-Dfml.modFolders\u003dthe_protocol%%C:\\Users\\Slayer\\Downloads\\the_protocol\\bin\\main"
+      ],
+      "cwd": "${workspaceFolder}\\run",
+      "env": {},
+      "console": "internalConsole",
+      "shortenCommandLine": "none"
+    },
+    {
+      "type": "java",
+      "request": "launch",
+      "name": "Server",
+      "presentation": {
+        "group": "Mod Development - the_protocol",
+        "order": 3
+      },
+      "projectName": "the_protocol",
+      "mainClass": "net.neoforged.devlaunch.Main",
+      "args": [
+        "@C:\\Users\\Slayer\\Downloads\\the_protocol\\build\\moddev\\serverRunProgramArgs.txt"
+      ],
+      "vmArgs": [
+        "@C:\\Users\\Slayer\\Downloads\\the_protocol\\build\\moddev\\serverRunVmArgs.txt",
+        "-Dfml.modFolders\u003dthe_protocol%%C:\\Users\\Slayer\\Downloads\\the_protocol\\bin\\main"
+      ],
+      "cwd": "${workspaceFolder}\\run",
+      "env": {},
+      "console": "internalConsole",
+      "shortenCommandLine": "none"
+    }
+  ]
+}
