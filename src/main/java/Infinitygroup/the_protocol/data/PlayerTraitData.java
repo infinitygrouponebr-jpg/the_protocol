@@ -9,12 +9,12 @@ public record PlayerTraitData(String traitId, boolean initialGranted, boolean re
             Codec.STRING.optionalFieldOf("traitId", "").forGetter(PlayerTraitData::traitId),
             Codec.BOOL.optionalFieldOf("initialGranted", false).forGetter(PlayerTraitData::initialGranted),
             Codec.BOOL.optionalFieldOf("rerollUsed", false).forGetter(PlayerTraitData::rerollUsed),
-            Codec.LONG.optionalFieldOf("lastParkourRollTick", Long.MIN_VALUE).forGetter(PlayerTraitData::lastParkourRollTick),
+            Codec.LONG.optionalFieldOf("lastParkourRollTick", -1L).forGetter(PlayerTraitData::lastParkourRollTick),
             Codec.DOUBLE.optionalFieldOf("parkourStamina", 100.0D).forGetter(PlayerTraitData::parkourStamina)
     ).apply(instance, PlayerTraitData::new));
 
     public static PlayerTraitData empty() {
-        return new PlayerTraitData("", false, false, Long.MIN_VALUE, 100.0D);
+        return new PlayerTraitData("", false, false, -1L, 100.0D);
     }
 
     public boolean hasTrait() {

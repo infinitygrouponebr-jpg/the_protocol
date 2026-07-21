@@ -29,6 +29,7 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 public final class TraitService {
+    private static final long PARKOUR_ROLL_NOT_USED_TICK = -1L;
     private static final Map<UUID, ServerBossEvent> PARKOUR_STAMINA_BARS = new ConcurrentHashMap<>();
 
     private TraitService() {
@@ -56,7 +57,8 @@ public final class TraitService {
         PlayerTraitData data = getData(player);
         if (!data.initialGranted()) {
             if (data.hasTrait()) {
-                setData(player, data.withInitialGranted(true));
+                PlayerTraitData updated = normalizeParkourData(data.withInitialGranted(true));
+                setData(player, updated);
                 TraitRegistry.get(data.traitLocation()).ifPresent(trait -> trait.onGranted(player, getData(player)));
                 refreshPassiveEffects(player);
                 return;
@@ -88,7 +90,7 @@ public final class TraitService {
         removeParkourStaminaBar(player);
         Optional<TraitDefinition> trait = currentTrait(player);
         if (trait.map(value -> value instanceof ParkourSpecialistTrait).orElse(false)) {
-            setData(player, getData(player).withParkourStamina(Config.parkourMaxStamina()));
+            setData(player, normalizeParkourData(getData(player)).withParkourStamina(Config.parkourMaxStamina()));
         }
         refreshPassiveEffects(player);
     }
@@ -175,6 +177,9 @@ public final class TraitService {
         PlayerTraitData updated = current.withTrait(trait.id())
                 .withInitialGranted(true)
                 .withRerollUsed(reroll || current.rerollUsed());
+        if (trait instanceof ParkourSpecialistTrait) {
+            updated = resetParkourState(updated);
+        }
         setData(player, updated);
         trait.onGranted(player, updated);
         refreshPassiveEffects(player);
@@ -227,7 +232,11 @@ public final class TraitService {
         }
 
         PlayerTraitData current = getData(player);
-        setData(player, current.withTrait(traitId).withInitialGranted(true));
+        PlayerTraitData updated = current.withTrait(traitId).withInitialGranted(true);
+        if (trait.get() instanceof ParkourSpecialistTrait) {
+            updated = resetParkourState(updated);
+        }
+        setData(player, updated);
         trait.get().onGranted(player, getData(player));
         refreshPassiveEffects(player);
         return true;
@@ -279,7 +288,8 @@ public final class TraitService {
 
         PlayerTraitData data = getData(player);
         long now = player.level().getGameTime();
-        if (now - data.lastParkourRollTick() < Config.parkourRollCooldownTicks()) {
+        long lastRollTick = data.lastParkourRollTick();
+        if (lastRollTick >= 0L && now - lastRollTick < Config.parkourRollCooldownTicks()) {
             player.displayClientMessage(Component.translatable("message.the_protocol.trait.parkour_roll_cooldown").withStyle(ChatFormatting.RED), true);
             return false;
         }
@@ -355,6 +365,20 @@ public final class TraitService {
         if (bar != null) {
             bar.removePlayer(player);
         }
+    }
+
+    private static PlayerTraitData normalizeParkourData(PlayerTraitData data) {
+        if (data.lastParkourRollTick() < 0L) {
+            return data.withLastParkourRollTick(PARKOUR_ROLL_NOT_USED_TICK);
+        }
+
+        return data;
+    }
+
+    private static PlayerTraitData resetParkourState(PlayerTraitData data) {
+        return normalizeParkourData(data)
+                .withLastParkourRollTick(PARKOUR_ROLL_NOT_USED_TICK)
+                .withParkourStamina(Config.parkourMaxStamina());
     }
 
     public static void giveMechanicStarterKit(ServerPlayer player) {
