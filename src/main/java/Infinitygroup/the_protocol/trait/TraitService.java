@@ -9,18 +9,28 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.server.level.ServerBossEvent;
+import net.minecraft.world.BossEvent;
+import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.entity.ai.attributes.AttributeInstance;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.item.ItemStack;
+import net.neoforged.neoforge.event.entity.player.PlayerEvent;
 import net.neoforged.neoforge.event.entity.living.LivingFallEvent;
 import net.neoforged.neoforge.event.entity.player.ArrowLooseEvent;
+import net.neoforged.neoforge.event.tick.PlayerTickEvent;
 
 import java.util.ArrayList;
+import java.util.Map;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 
 public final class TraitService {
+    private static final Map<UUID, ServerBossEvent> PARKOUR_STAMINA_BARS = new ConcurrentHashMap<>();
+
     private TraitService() {
     }
 
@@ -39,6 +49,7 @@ public final class TraitService {
 
     public static void handlePlayerLogin(ServerPlayer player) {
         if (player == null || !Config.traitsEnabled()) {
+            removeParkourStaminaBar(player);
             return;
         }
 
@@ -70,10 +81,35 @@ public final class TraitService {
 
     public static void handlePlayerRespawn(ServerPlayer player) {
         if (player == null || !Config.traitsEnabled()) {
+            removeParkourStaminaBar(player);
             return;
         }
 
+        removeParkourStaminaBar(player);
+        Optional<TraitDefinition> trait = currentTrait(player);
+        if (trait.map(value -> value instanceof ParkourSpecialistTrait).orElse(false)) {
+            setData(player, getData(player).withParkourStamina(Config.parkourMaxStamina()));
+        }
         refreshPassiveEffects(player);
+    }
+
+    public static void handlePlayerLogout(PlayerEvent.PlayerLoggedOutEvent event) {
+        if (event.getEntity() instanceof ServerPlayer player) {
+            removeParkourStaminaBar(player);
+        }
+    }
+
+    public static void handlePlayerTick(PlayerTickEvent.Post event) {
+        if (!(event.getEntity() instanceof ServerPlayer player) || player.level().isClientSide() || !Config.traitsEnabled()) {
+            return;
+        }
+
+        if (currentTrait(player).map(trait -> trait instanceof ParkourSpecialistTrait).orElse(false)) {
+            regenerateParkourStamina(player);
+            syncParkourStaminaBar(player);
+        } else {
+            removeParkourStaminaBar(player);
+        }
     }
 
     public static void handleLivingFall(LivingFallEvent event) {
@@ -204,6 +240,7 @@ public final class TraitService {
 
     public static void refreshPassiveEffects(ServerPlayer player) {
         if (player == null || !Config.traitsEnabled()) {
+            removeParkourStaminaBar(player);
             return;
         }
 
@@ -211,6 +248,7 @@ public final class TraitService {
 
         Optional<TraitDefinition> current = currentTrait(player);
         current.ifPresent(trait -> trait.applyPersistentEffects(player, getData(player)));
+        syncParkourStaminaBar(player);
     }
 
     private static void removeManagedModifiers(ServerPlayer player) {
@@ -227,6 +265,96 @@ public final class TraitService {
         }
 
         movementSpeed.addTransientModifier(new AttributeModifier(ParkourSpecialistTrait.SPEED_MODIFIER_ID, Config.parkourMoveSpeedBonus(), AttributeModifier.Operation.ADD_MULTIPLIED_BASE));
+    }
+
+    public static boolean tryTriggerParkourRoll(ServerPlayer player) {
+        if (player == null || !Config.traitsEnabled() || !currentTrait(player).map(trait -> trait instanceof ParkourSpecialistTrait).orElse(false)) {
+            return false;
+        }
+
+        if (!player.onGround() || player.isPassenger() || player.isFallFlying() || player.isSwimming()) {
+            player.displayClientMessage(Component.translatable("message.the_protocol.trait.parkour_roll_ground").withStyle(ChatFormatting.RED), true);
+            return false;
+        }
+
+        PlayerTraitData data = getData(player);
+        long now = player.level().getGameTime();
+        if (now - data.lastParkourRollTick() < Config.parkourRollCooldownTicks()) {
+            player.displayClientMessage(Component.translatable("message.the_protocol.trait.parkour_roll_cooldown").withStyle(ChatFormatting.RED), true);
+            return false;
+        }
+
+        double cost = Config.parkourRollStaminaCost();
+        if (data.parkourStamina() < cost) {
+            player.displayClientMessage(Component.translatable("message.the_protocol.trait.parkour_roll_stamina").withStyle(ChatFormatting.RED), true);
+            return false;
+        }
+
+        Vec3 forward = player.getLookAngle();
+        Vec3 horizontal = new Vec3(forward.x, 0.0D, forward.z);
+        if (horizontal.lengthSqr() < 1.0E-4D) {
+            horizontal = new Vec3(0.0D, 0.0D, 1.0D);
+        } else {
+            horizontal = horizontal.normalize();
+        }
+
+        Vec3 currentMotion = player.getDeltaMovement();
+        Vec3 boosted = currentMotion.add(horizontal.scale(Config.parkourRollForwardStrength()));
+        player.setDeltaMovement(boosted.x, Math.min(boosted.y + Config.parkourRollVerticalBoost(), 0.6D), boosted.z);
+        player.resetFallDistance();
+
+        setData(player, data.withLastParkourRollTick(now).withParkourStamina(Math.max(0.0D, data.parkourStamina() - cost)));
+        syncParkourStaminaBar(player);
+        player.displayClientMessage(Component.translatable("message.the_protocol.trait.parkour_rolled").withStyle(ChatFormatting.GREEN), true);
+        return true;
+    }
+
+    public static void regenerateParkourStamina(ServerPlayer player) {
+        if (player == null) {
+            return;
+        }
+
+        PlayerTraitData data = getData(player);
+        double maxStamina = Config.parkourMaxStamina();
+        if (data.parkourStamina() >= maxStamina) {
+            return;
+        }
+
+        double restored = Math.min(maxStamina, data.parkourStamina() + Config.parkourStaminaRegenPerTick());
+        if (restored != data.parkourStamina()) {
+            setData(player, data.withParkourStamina(restored));
+        }
+    }
+
+    private static void syncParkourStaminaBar(ServerPlayer player) {
+        if (player == null || !Config.traitsEnabled() || !currentTrait(player).map(trait -> trait instanceof ParkourSpecialistTrait).orElse(false)) {
+            removeParkourStaminaBar(player);
+            return;
+        }
+
+        PlayerTraitData data = getData(player);
+        ServerBossEvent bar = PARKOUR_STAMINA_BARS.computeIfAbsent(player.getUUID(), uuid -> new ServerBossEvent(
+                Component.translatable("message.the_protocol.trait.parkour_stamina"),
+                BossEvent.BossBarColor.GREEN,
+                BossEvent.BossBarOverlay.PROGRESS
+        ));
+
+        if (!bar.getPlayers().contains(player)) {
+            bar.addPlayer(player);
+        }
+
+        bar.setProgress((float) Math.max(0.0D, Math.min(1.0D, data.parkourStamina() / Math.max(1.0D, Config.parkourMaxStamina()))));
+    }
+
+    private static void removeParkourStaminaBar(ServerPlayer player) {
+        if (player == null) {
+            return;
+        }
+
+        ServerBossEvent bar = PARKOUR_STAMINA_BARS.remove(player.getUUID());
+        if (bar != null) {
+            bar.removePlayer(player);
+        }
     }
 
     public static void giveMechanicStarterKit(ServerPlayer player) {

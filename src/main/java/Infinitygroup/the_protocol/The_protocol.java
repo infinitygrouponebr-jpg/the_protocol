@@ -16,6 +16,7 @@ import net.neoforged.neoforge.event.RegisterCommandsEvent;
 import net.neoforged.neoforge.event.entity.living.LivingFallEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerEvent;
 import net.neoforged.neoforge.event.entity.player.ArrowLooseEvent;
+import net.neoforged.neoforge.event.tick.PlayerTickEvent;
 import org.slf4j.Logger;
 
 @Mod(The_protocol.MODID)
@@ -31,6 +32,8 @@ public class The_protocol {
 
         NeoForge.EVENT_BUS.addListener(this::onPlayerLogin);
         NeoForge.EVENT_BUS.addListener(this::onPlayerRespawn);
+        NeoForge.EVENT_BUS.addListener(this::onPlayerLogout);
+        NeoForge.EVENT_BUS.addListener(this::onPlayerTick);
         NeoForge.EVENT_BUS.addListener(this::onLivingFall);
         NeoForge.EVENT_BUS.addListener(this::onArrowLoose);
         NeoForge.EVENT_BUS.addListener(this::onRegisterCommands);
@@ -47,6 +50,14 @@ public class The_protocol {
 
     private void onPlayerRespawn(PlayerEvent.PlayerRespawnEvent event) {
         TraitService.handlePlayerRespawn(event.getEntity() instanceof ServerPlayer serverPlayer ? serverPlayer : null);
+    }
+
+    private void onPlayerLogout(PlayerEvent.PlayerLoggedOutEvent event) {
+        TraitService.handlePlayerLogout(event);
+    }
+
+    private void onPlayerTick(PlayerTickEvent.Post event) {
+        TraitService.handlePlayerTick(event);
     }
 
     private void onLivingFall(LivingFallEvent event) {

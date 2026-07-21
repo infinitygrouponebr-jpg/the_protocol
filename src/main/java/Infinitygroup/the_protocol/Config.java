@@ -62,13 +62,37 @@ public final class Config {
             .comment("Minimum fall distance required to trigger a roll.")
             .defineInRange("parkourRollMinDistance", 3.0D, 0.0D, 100.0D);
 
+    private static final ModConfigSpec.DoubleValue PARKOUR_MOVE_SPEED_BONUS = BUILDER
+            .comment("Small movement speed bonus for Parkour Specialist.")
+            .defineInRange("parkourMoveSpeedBonus", 0.03D, 0.0D, 0.20D);
+
+    private static final ModConfigSpec.DoubleValue PARKOUR_MAX_STAMINA = BUILDER
+            .comment("Maximum stamina for Parkour Specialist.")
+            .defineInRange("parkourMaxStamina", 100.0D, 1.0D, 1000.0D);
+
+    private static final ModConfigSpec.DoubleValue PARKOUR_STAMINA_REGEN_PER_TICK = BUILDER
+            .comment("How much stamina Parkour Specialist regenerates each tick.")
+            .defineInRange("parkourStaminaRegenPerTick", 0.5D, 0.0D, 20.0D);
+
+    private static final ModConfigSpec.DoubleValue PARKOUR_ROLL_STAMINA_COST = BUILDER
+            .comment("Stamina cost for a Parkour roll.")
+            .defineInRange("parkourRollStaminaCost", 25.0D, 0.0D, 1000.0D);
+
     private static final ModConfigSpec.IntValue PARKOUR_ROLL_COOLDOWN_TICKS = BUILDER
             .comment("Cooldown in ticks before the next roll can trigger.")
             .defineInRange("parkourRollCooldownTicks", 20, 0, 20 * 60 * 5);
 
-    private static final ModConfigSpec.DoubleValue PARKOUR_MOVE_SPEED_BONUS = BUILDER
-            .comment("Small movement speed bonus for Parkour Specialist.")
-            .defineInRange("parkourMoveSpeedBonus", 0.03D, 0.0D, 0.20D);
+    private static final ModConfigSpec.IntValue PARKOUR_ROLL_FALL_WINDOW_TICKS = BUILDER
+            .comment("How long after a roll fall damage gets the stronger reduction.")
+            .defineInRange("parkourRollFallWindowTicks", 12, 0, 20 * 10);
+
+    private static final ModConfigSpec.DoubleValue PARKOUR_ROLL_FORWARD_STRENGTH = BUILDER
+            .comment("Forward speed applied when Parkour Specialist rolls.")
+            .defineInRange("parkourRollForwardStrength", 0.85D, 0.0D, 5.0D);
+
+    private static final ModConfigSpec.DoubleValue PARKOUR_ROLL_VERTICAL_BOOST = BUILDER
+            .comment("Small upward boost applied when Parkour Specialist rolls.")
+            .defineInRange("parkourRollVerticalBoost", 0.12D, 0.0D, 1.0D);
 
     private static final ModConfigSpec.BooleanValue MECHANIC_STARTER_KIT_ENABLED = BUILDER
             .comment("If true, Mechanic grants a small starter kit when first assigned.")
@@ -93,6 +117,12 @@ public final class Config {
     private static double parkourRollMinDistance;
     private static int parkourRollCooldownTicks;
     private static double parkourMoveSpeedBonus;
+    private static double parkourMaxStamina;
+    private static double parkourStaminaRegenPerTick;
+    private static double parkourRollStaminaCost;
+    private static int parkourRollFallWindowTicks;
+    private static double parkourRollForwardStrength;
+    private static double parkourRollVerticalBoost;
     private static boolean mechanicStarterKitEnabled;
     private static List<Item> mechanicStarterKitItems = List.of();
 
@@ -120,6 +150,12 @@ public final class Config {
         parkourRollMinDistance = PARKOUR_ROLL_MIN_DISTANCE.get();
         parkourRollCooldownTicks = PARKOUR_ROLL_COOLDOWN_TICKS.get();
         parkourMoveSpeedBonus = PARKOUR_MOVE_SPEED_BONUS.get();
+        parkourMaxStamina = PARKOUR_MAX_STAMINA.get();
+        parkourStaminaRegenPerTick = PARKOUR_STAMINA_REGEN_PER_TICK.get();
+        parkourRollStaminaCost = PARKOUR_ROLL_STAMINA_COST.get();
+        parkourRollFallWindowTicks = PARKOUR_ROLL_FALL_WINDOW_TICKS.get();
+        parkourRollForwardStrength = PARKOUR_ROLL_FORWARD_STRENGTH.get();
+        parkourRollVerticalBoost = PARKOUR_ROLL_VERTICAL_BOOST.get();
         mechanicStarterKitEnabled = MECHANIC_STARTER_KIT_ENABLED.get();
         mechanicStarterKitItems = MECHANIC_STARTER_KIT_ITEMS.get().stream()
                 .map(ResourceLocation::tryParse)
@@ -192,6 +228,30 @@ public final class Config {
 
     public static double parkourMoveSpeedBonus() {
         return parkourMoveSpeedBonus;
+    }
+
+    public static double parkourMaxStamina() {
+        return parkourMaxStamina;
+    }
+
+    public static double parkourStaminaRegenPerTick() {
+        return parkourStaminaRegenPerTick;
+    }
+
+    public static double parkourRollStaminaCost() {
+        return parkourRollStaminaCost;
+    }
+
+    public static int parkourRollFallWindowTicks() {
+        return parkourRollFallWindowTicks;
+    }
+
+    public static double parkourRollForwardStrength() {
+        return parkourRollForwardStrength;
+    }
+
+    public static double parkourRollVerticalBoost() {
+        return parkourRollVerticalBoost;
     }
 
     public static boolean mechanicStarterKitEnabled() {

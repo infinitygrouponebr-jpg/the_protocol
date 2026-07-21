@@ -37,9 +37,8 @@ public final class ParkourSpecialistTrait extends AbstractTraitDefinition {
         }
 
         long now = player.level().getGameTime();
-        if (player.isCrouching() && now - data.lastParkourRollTick() >= Config.parkourRollCooldownTicks()) {
+        if (now - data.lastParkourRollTick() <= Config.parkourRollFallWindowTicks()) {
             event.setDamageMultiplier((float) (event.getDamageMultiplier() * Config.parkourRollDamageMultiplier()));
-            TraitService.setData(player, data.withLastParkourRollTick(now));
             player.displayClientMessage(Component.translatable("message.the_protocol.trait.parkour_roll").withStyle(ChatFormatting.GREEN), true);
             return;
         }
