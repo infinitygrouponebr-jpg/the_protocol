@@ -1,6 +1,7 @@
 package Infinitygroup.the_protocol.event;
 
 import Infinitygroup.the_protocol.compat.TaczCompat;
+import Infinitygroup.the_protocol.compat.TaczDamageTracker;
 import Infinitygroup.the_protocol.config.CommonConfig;
 import Infinitygroup.the_protocol.profession.ProfessionManager;
 import net.minecraft.server.level.ServerPlayer;
@@ -10,15 +11,15 @@ import net.neoforged.neoforge.event.entity.living.LivingDeathEvent;
 import net.neoforged.neoforge.event.entity.living.LivingDamageEvent;
 import net.neoforged.neoforge.event.tick.PlayerTickEvent;
 
-/** Server-side Phase 1 TaCZ profession effects. */
+/** Server-side TaCZ profession effects, restricted to confirmed TaCZ projectile damage. */
 public final class PlayerCombatEvents {
     private PlayerCombatEvents() {
     }
 
     @SubscribeEvent
     public static void onLivingHurt(LivingDamageEvent.Pre event) {
-        if (!(event.getSource().getEntity() instanceof ServerPlayer player) || !(event.getEntity() instanceof LivingEntity target)
-                || target == player || !TaczCompat.isEnabled() || !TaczCompat.isHoldingTaczWeapon(player)) {
+        ServerPlayer player = TaczCompat.getTaczShotAttacker(event.getSource());
+        if (player == null || !(event.getEntity() instanceof LivingEntity target) || target == player || !TaczCompat.isEnabled()) {
             return;
         }
 
@@ -34,6 +35,9 @@ public final class PlayerCombatEvents {
         float adjustedDamage = (float) (event.getNewDamage() * multiplier);
         event.setNewDamage(adjustedDamage);
 
+        if (adjustedDamage > 0.0F) {
+            TaczDamageTracker.record(target, player, TaczCompat.getWeaponCategory(player.getMainHandItem()));
+        }
         if (adjustedDamage > 0.0F && CommonConfig.ENABLE_PROFESSION_SYSTEM.get() && CommonConfig.TACZ_ENABLE_XP_GAIN.get()) {
             ProfessionManager.addExperience(player, shooter
                     ? CommonConfig.TACZ_SHOOTER_XP_ON_HIT.get()
@@ -43,12 +47,17 @@ public final class PlayerCombatEvents {
 
     @SubscribeEvent
     public static void onLivingDeath(LivingDeathEvent event) {
-        if (!(event.getSource().getEntity() instanceof ServerPlayer player) || !TaczCompat.isEnabled()
-                || !TaczCompat.isHoldingTaczWeapon(player) || !CommonConfig.ENABLE_PROFESSION_SYSTEM.get()
-                || !CommonConfig.TACZ_ENABLE_XP_GAIN.get()) {
+        if (!(event.getEntity() instanceof LivingEntity target) || !TaczCompat.isEnabled()
+                || !CommonConfig.ENABLE_PROFESSION_SYSTEM.get() || !CommonConfig.TACZ_ENABLE_XP_GAIN.get()) {
             return;
         }
-        ProfessionManager.addExperience(player, TaczCompat.isShooter(player)
+        TaczDamageTracker.Hit hit = TaczDamageTracker.takeRecent(target);
+        if (hit == null || target.getServer() == null) {
+            return;
+        }
+        ServerPlayer player = target.getServer().getPlayerList().getPlayer(hit.attackerId());
+        if (player == null) return;
+        ProfessionManager.addExperience(player, hit.shooter()
                 ? CommonConfig.TACZ_SHOOTER_XP_ON_KILL.get()
                 : CommonConfig.TACZ_NON_SHOOTER_XP_ON_KILL.get());
     }

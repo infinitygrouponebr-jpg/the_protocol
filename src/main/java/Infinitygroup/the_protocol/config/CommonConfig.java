@@ -22,10 +22,12 @@ public final class CommonConfig {
     public static final ModConfigSpec.DoubleValue TACZ_NON_SHOOTER_DAMAGE_MULTIPLIER = BUILDER.defineInRange("tacz.nonShooterDamageMultiplier", 0.85D, 0.0D, 10.0D);
     public static final ModConfigSpec.DoubleValue TACZ_HEAVY_WEAPON_MOVEMENT_PENALTY = BUILDER.defineInRange("tacz.heavyWeaponMovementPenalty", 0.15D, 0.0D, 1.0D);
     public static final ModConfigSpec.DoubleValue TACZ_NON_SHOOTER_HEAVY_WEAPON_PENALTY = BUILDER.defineInRange("tacz.nonShooterHeavyWeaponPenalty", 0.20D, 0.0D, 1.0D);
+    // TODO Phase 3: TaCZ 1.21.1 exposes no safe per-player public recoil mutation point.
     public static final ModConfigSpec.DoubleValue TACZ_SHOOTER_RECOIL_MULTIPLIER = BUILDER.defineInRange("tacz.shooterRecoilMultiplier", 0.85D, 0.0D, 10.0D);
     public static final ModConfigSpec.DoubleValue TACZ_NON_SHOOTER_RECOIL_MULTIPLIER = BUILDER.defineInRange("tacz.nonShooterRecoilMultiplier", 1.20D, 0.0D, 10.0D);
     public static final ModConfigSpec.DoubleValue TACZ_SHOOTER_ACCURACY_MULTIPLIER = BUILDER.defineInRange("tacz.shooterAccuracyMultiplier", 1.10D, 0.0D, 10.0D);
     public static final ModConfigSpec.DoubleValue TACZ_NON_SHOOTER_ACCURACY_MULTIPLIER = BUILDER.defineInRange("tacz.nonShooterAccuracyMultiplier", 0.90D, 0.0D, 10.0D);
+    // TODO Phase 3: TaCZ 1.21.1 exposes reload lifecycle events but no mutable reload-duration value.
     public static final ModConfigSpec.DoubleValue TACZ_SHOOTER_RELOAD_SPEED_MULTIPLIER = BUILDER.defineInRange("tacz.shooterReloadSpeedMultiplier", 1.10D, 0.0D, 10.0D);
     public static final ModConfigSpec.DoubleValue TACZ_NON_SHOOTER_RELOAD_SPEED_MULTIPLIER = BUILDER.defineInRange("tacz.nonShooterReloadSpeedMultiplier", 0.90D, 0.0D, 10.0D);
     public static final ModConfigSpec.BooleanValue ENABLE_VEHICLE_COMPAT = BUILDER.define("enableVehicleCompat", true);
