@@ -1,22 +1,21 @@
 package Infinitygroup.the_protocol.compat;
 
-import Infinitygroup.the_protocol.Config;
+import net.neoforged.fml.ModList;
 
-import java.util.List;
-
+/** Isolated optional-mod checks. Do not import external mod classes here. */
 public final class CompatManager {
     private CompatManager() {
     }
 
     public static boolean isTaczLoaded() {
-        return TaczCompat.isLoaded();
+        return ModList.get().isLoaded("tacz");
     }
 
-    public static boolean isVehicleCompatLoaded() {
-        return VehicleCompat.isLoaded();
+    public static boolean isVehicleModLoaded() {
+        return ModList.get().isLoaded("immersivevehicles") || ModList.get().isLoaded("ultimatecar");
     }
 
-    public static List<String> describeVehicleCompatTargets() {
-        return Config.vehicleCompatModIds();
+    public static boolean isMicroTechLoaded() {
+        return ModList.get().isLoaded("microtech");
     }
 }

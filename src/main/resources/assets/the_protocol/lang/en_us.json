@@ -1,33 +1,4 @@
 {
-  "trait.the_protocol.gun_specialist.name": "Gun Specialist",
-  "trait.the_protocol.gun_specialist.description": "Better handling with ranged weapons, with extra hooks ready for TaCZ.",
-  "trait.the_protocol.parkour_specialist.name": "Parkour Specialist",
-  "trait.the_protocol.parkour_specialist.description": "Reduced fall damage, a stamina-based roll on X, and lighter movement.",
-  "trait.the_protocol.mechanic.name": "Mechanic",
-  "trait.the_protocol.mechanic.description": "Starts with a small survival starter kit and optional vehicle compat hooks.",
-
-  "message.the_protocol.trait.assigned": "You received the trait: %s",
-  "message.the_protocol.trait.rerolled": "Your trait changed to: %s",
-  "message.the_protocol.trait.reroll_disabled": "Rerolls are disabled on this server.",
-  "message.the_protocol.trait.no_current_trait": "You do not have a trait yet.",
-  "message.the_protocol.trait.reroll_used": "You already used your one reroll.",
-  "message.the_protocol.trait.no_reroll_available": "No valid alternative trait is available for reroll.",
-  "message.the_protocol.trait.no_available_traits": "No traits are currently available to assign.",
-  "message.the_protocol.trait.invalid_trait": "Unknown trait: %s",
-  "message.the_protocol.trait.set": "Set %s to trait %s.",
-  "message.the_protocol.trait.cleared": "Cleared trait data for %s.",
-  "message.the_protocol.trait.mechanic_kit": "Mechanic starter kit delivered.",
-  "message.the_protocol.trait.parkour_ready": "Parkour Specialist active.",
-  "message.the_protocol.trait.parkour_rolled": "Parkour roll used.",
-  "message.the_protocol.trait.parkour_roll_ground": "You can only roll while on the ground.",
-  "message.the_protocol.trait.parkour_roll_cooldown": "Roll is still on cooldown.",
-  "message.the_protocol.trait.parkour_roll_stamina": "Not enough stamina.",
-  "message.the_protocol.trait.parkour_roll": "Parkour roll reduced your fall damage.",
-  "message.the_protocol.trait.parkour_stamina": "Parkour Stamina",
-
-  "message.the_protocol.trait.info.header": "Trait info",
-  "message.the_protocol.trait.info.state": "Current trait: %s | initial granted: %s | reroll used: %s",
-  "message.the_protocol.trait.info.none": "None",
-
-  "key.the_protocol.parkour_roll": "Parkour Roll"
+  "item.the_protocol.profession_debug_tool": "Profession Debug Tool",
+  "itemGroup.the_protocol.survival_professions": "Survival Professions"
 }

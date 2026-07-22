@@ -11,10 +11,6 @@ group = mod_group_id
 repositories {
     mavenLocal()
     mavenCentral()
-    maven {
-        name = "RedlanceMinecraft"
-        url = "https://repo.redlance.org/public"
-    }
 }
 
 base {
@@ -26,11 +22,6 @@ java.toolchain.languageVersion = JavaLanguageVersion.of(21)
 neoForge {
     // Specify the version of NeoForge to use.
     version = project.neo_version
-
-    parchment {
-        mappingsVersion = project.parchment_mappings_version
-        minecraftVersion = project.parchment_minecraft_version
-    }
 
     // This line is optional. Access Transformers are automatically detected
     // accessTransformers.add('src/main/resources/META-INF/accesstransformer.cfg')
@@ -101,7 +92,6 @@ sourceSets.main.resources { srcDir 'src/generated/resources' }
 
 
 dependencies {
-    implementation "com.zigythebird.playeranim:PlayerAnimationLibNeo:${pal_version}"
     // Example mod dependency with JEI
     // The JEI API is declared for compile time use, while the full JEI artifact is used at runtime
     // compileOnly "mezz.jei:jei-${mc_version}-common-api:${jei_version}"
