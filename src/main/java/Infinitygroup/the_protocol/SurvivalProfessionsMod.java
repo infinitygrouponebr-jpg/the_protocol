@@ -4,6 +4,7 @@ import Infinitygroup.the_protocol.command.ProfessionCommand;
 import Infinitygroup.the_protocol.compat.CompatManager;
 import Infinitygroup.the_protocol.config.CommonConfig;
 import Infinitygroup.the_protocol.event.PlayerProfessionEvents;
+import Infinitygroup.the_protocol.event.PlayerCombatEvents;
 import Infinitygroup.the_protocol.event.CombatRollProfessionEvents;
 import Infinitygroup.the_protocol.compat.CombatRollCompat;
 import Infinitygroup.the_protocol.registry.ModDataComponents;
@@ -31,6 +32,7 @@ public final class SurvivalProfessionsMod {
         ModTabs.register(modEventBus);
 
         NeoForge.EVENT_BUS.register(PlayerProfessionEvents.class);
+        NeoForge.EVENT_BUS.register(PlayerCombatEvents.class);
         NeoForge.EVENT_BUS.register(CombatRollProfessionEvents.class);
         NeoForge.EVENT_BUS.addListener(this::registerCommands);
         modEventBus.addListener(this::onConfigReload);
