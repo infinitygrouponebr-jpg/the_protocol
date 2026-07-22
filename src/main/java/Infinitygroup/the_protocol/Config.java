@@ -66,6 +66,30 @@ public final class Config {
             .comment("Small movement speed bonus for Parkour Specialist.")
             .defineInRange("parkourMoveSpeedBonus", 0.03D, 0.0D, 0.20D);
 
+    private static final ModConfigSpec.IntValue PARKOUR_ROLL_DURATION_TICKS = BUILDER
+            .comment("How many ticks the Parkour roll movement lasts.")
+            .defineInRange("parkourRollDurationTicks", 10, 1, 40);
+
+    private static final ModConfigSpec.DoubleValue PARKOUR_ROLL_INITIAL_SPEED = BUILDER
+            .comment("Initial horizontal speed at the start of the Parkour roll.")
+            .defineInRange("parkourRollInitialSpeed", 0.90D, 0.05D, 5.0D);
+
+    private static final ModConfigSpec.DoubleValue PARKOUR_ROLL_END_SPEED = BUILDER
+            .comment("Horizontal speed at the end of the Parkour roll.")
+            .defineInRange("parkourRollEndSpeed", 0.20D, 0.0D, 5.0D);
+
+    private static final ModConfigSpec.DoubleValue PARKOUR_ROLL_CONTROL_MULTIPLIER = BUILDER
+            .comment("How much normal player input can influence movement while rolling.")
+            .defineInRange("parkourRollControlMultiplier", 0.15D, 0.0D, 1.0D);
+
+    private static final ModConfigSpec.DoubleValue PARKOUR_ROLL_KNOCKBACK_RESISTANCE_BONUS = BUILDER
+            .comment("Optional knockback resistance bonus applied while rolling.")
+            .defineInRange("parkourRollKnockbackResistanceBonus", 0.25D, 0.0D, 1.0D);
+
+    private static final ModConfigSpec.IntValue PARKOUR_ROLL_ANIMATION_FADE_TICKS = BUILDER
+            .comment("How many ticks the roll animation fades out when interrupted.")
+            .defineInRange("parkourRollAnimationFadeTicks", 4, 0, 20);
+
     private static final ModConfigSpec.DoubleValue PARKOUR_MAX_STAMINA = BUILDER
             .comment("Maximum stamina for Parkour Specialist.")
             .defineInRange("parkourMaxStamina", 100.0D, 1.0D, 1000.0D);
@@ -117,6 +141,12 @@ public final class Config {
     private static double parkourRollMinDistance;
     private static int parkourRollCooldownTicks;
     private static double parkourMoveSpeedBonus;
+    private static int parkourRollDurationTicks;
+    private static double parkourRollInitialSpeed;
+    private static double parkourRollEndSpeed;
+    private static double parkourRollControlMultiplier;
+    private static double parkourRollKnockbackResistanceBonus;
+    private static int parkourRollAnimationFadeTicks;
     private static double parkourMaxStamina;
     private static double parkourStaminaRegenPerTick;
     private static double parkourRollStaminaCost;
@@ -150,6 +180,12 @@ public final class Config {
         parkourRollMinDistance = PARKOUR_ROLL_MIN_DISTANCE.get();
         parkourRollCooldownTicks = PARKOUR_ROLL_COOLDOWN_TICKS.get();
         parkourMoveSpeedBonus = PARKOUR_MOVE_SPEED_BONUS.get();
+        parkourRollDurationTicks = PARKOUR_ROLL_DURATION_TICKS.get();
+        parkourRollInitialSpeed = PARKOUR_ROLL_INITIAL_SPEED.get();
+        parkourRollEndSpeed = PARKOUR_ROLL_END_SPEED.get();
+        parkourRollControlMultiplier = PARKOUR_ROLL_CONTROL_MULTIPLIER.get();
+        parkourRollKnockbackResistanceBonus = PARKOUR_ROLL_KNOCKBACK_RESISTANCE_BONUS.get();
+        parkourRollAnimationFadeTicks = PARKOUR_ROLL_ANIMATION_FADE_TICKS.get();
         parkourMaxStamina = PARKOUR_MAX_STAMINA.get();
         parkourStaminaRegenPerTick = PARKOUR_STAMINA_REGEN_PER_TICK.get();
         parkourRollStaminaCost = PARKOUR_ROLL_STAMINA_COST.get();
@@ -228,6 +264,30 @@ public final class Config {
 
     public static double parkourMoveSpeedBonus() {
         return parkourMoveSpeedBonus;
+    }
+
+    public static int parkourRollDurationTicks() {
+        return parkourRollDurationTicks;
+    }
+
+    public static double parkourRollInitialSpeed() {
+        return parkourRollInitialSpeed;
+    }
+
+    public static double parkourRollEndSpeed() {
+        return parkourRollEndSpeed;
+    }
+
+    public static double parkourRollControlMultiplier() {
+        return parkourRollControlMultiplier;
+    }
+
+    public static double parkourRollKnockbackResistanceBonus() {
+        return parkourRollKnockbackResistanceBonus;
+    }
+
+    public static int parkourRollAnimationFadeTicks() {
+        return parkourRollAnimationFadeTicks;
     }
 
     public static double parkourMaxStamina() {

@@ -8,28 +8,26 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.level.ServerBossEvent;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.BossEvent;
-import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.entity.ai.attributes.AttributeInstance;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.item.ItemStack;
-import net.neoforged.neoforge.event.entity.player.PlayerEvent;
 import net.neoforged.neoforge.event.entity.living.LivingFallEvent;
 import net.neoforged.neoforge.event.entity.player.ArrowLooseEvent;
+import net.neoforged.neoforge.event.entity.player.PlayerEvent;
 import net.neoforged.neoforge.event.tick.PlayerTickEvent;
 
 import java.util.ArrayList;
-import java.util.Map;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 public final class TraitService {
-    private static final long PARKOUR_ROLL_NOT_USED_TICK = -1L;
     private static final Map<UUID, ServerBossEvent> PARKOUR_STAMINA_BARS = new ConcurrentHashMap<>();
 
     private TraitService() {
@@ -88,15 +86,16 @@ public final class TraitService {
         }
 
         removeParkourStaminaBar(player);
-        Optional<TraitDefinition> trait = currentTrait(player);
-        if (trait.map(value -> value instanceof ParkourSpecialistTrait).orElse(false)) {
-            setData(player, normalizeParkourData(getData(player)).withParkourStamina(Config.parkourMaxStamina()));
+        PlayerTraitData data = getData(player);
+        if (currentTrait(player).map(trait -> trait instanceof ParkourSpecialistTrait).orElse(false)) {
+            setData(player, ParkourRollHandler.resetForNewTrait(data).withParkourStamina(Config.parkourMaxStamina()));
         }
         refreshPassiveEffects(player);
     }
 
     public static void handlePlayerLogout(PlayerEvent.PlayerLoggedOutEvent event) {
         if (event.getEntity() instanceof ServerPlayer player) {
+            ParkourRollHandler.stopRoll(player, true);
             removeParkourStaminaBar(player);
         }
     }
@@ -107,9 +106,11 @@ public final class TraitService {
         }
 
         if (currentTrait(player).map(trait -> trait instanceof ParkourSpecialistTrait).orElse(false)) {
+            ParkourRollHandler.tickRoll(player);
             regenerateParkourStamina(player);
             syncParkourStaminaBar(player);
         } else {
+            ParkourRollHandler.stopRoll(player, true);
             removeParkourStaminaBar(player);
         }
     }
@@ -178,7 +179,7 @@ public final class TraitService {
                 .withInitialGranted(true)
                 .withRerollUsed(reroll || current.rerollUsed());
         if (trait instanceof ParkourSpecialistTrait) {
-            updated = resetParkourState(updated);
+            updated = ParkourRollHandler.resetForNewTrait(updated);
         }
         setData(player, updated);
         trait.onGranted(player, updated);
@@ -217,7 +218,11 @@ public final class TraitService {
         }
 
         TraitDefinition chosen = candidates.get(player.getRandom().nextInt(candidates.size()));
-        setData(player, current.withRerollUsed(true).withTrait(chosen.id()).withInitialGranted(true));
+        PlayerTraitData updated = current.withRerollUsed(true).withTrait(chosen.id()).withInitialGranted(true);
+        if (chosen instanceof ParkourSpecialistTrait) {
+            updated = ParkourRollHandler.resetForNewTrait(updated);
+        }
+        setData(player, updated);
         chosen.onGranted(player, getData(player));
         refreshPassiveEffects(player);
 
@@ -234,7 +239,9 @@ public final class TraitService {
         PlayerTraitData current = getData(player);
         PlayerTraitData updated = current.withTrait(traitId).withInitialGranted(true);
         if (trait.get() instanceof ParkourSpecialistTrait) {
-            updated = resetParkourState(updated);
+            updated = ParkourRollHandler.resetForNewTrait(updated);
+        } else {
+            ParkourRollHandler.stopRoll(player, true);
         }
         setData(player, updated);
         trait.get().onGranted(player, getData(player));
@@ -243,12 +250,15 @@ public final class TraitService {
     }
 
     public static void clearTrait(ServerPlayer player) {
+        ParkourRollHandler.stopRoll(player, true);
         setData(player, PlayerTraitData.empty());
         refreshPassiveEffects(player);
+        removeParkourStaminaBar(player);
     }
 
     public static void refreshPassiveEffects(ServerPlayer player) {
         if (player == null || !Config.traitsEnabled()) {
+            ParkourRollHandler.stopRoll(player, true);
             removeParkourStaminaBar(player);
             return;
         }
@@ -277,46 +287,11 @@ public final class TraitService {
     }
 
     public static boolean tryTriggerParkourRoll(ServerPlayer player) {
-        if (player == null || !Config.traitsEnabled() || !currentTrait(player).map(trait -> trait instanceof ParkourSpecialistTrait).orElse(false)) {
-            return false;
-        }
+        return tryTriggerParkourRoll(player, 0.0D, 0.0D);
+    }
 
-        if (!player.onGround() || player.isPassenger() || player.isFallFlying() || player.isSwimming()) {
-            player.displayClientMessage(Component.translatable("message.the_protocol.trait.parkour_roll_ground").withStyle(ChatFormatting.RED), true);
-            return false;
-        }
-
-        PlayerTraitData data = getData(player);
-        long now = player.level().getGameTime();
-        long lastRollTick = data.lastParkourRollTick();
-        if (lastRollTick >= 0L && now - lastRollTick < Config.parkourRollCooldownTicks()) {
-            player.displayClientMessage(Component.translatable("message.the_protocol.trait.parkour_roll_cooldown").withStyle(ChatFormatting.RED), true);
-            return false;
-        }
-
-        double cost = Config.parkourRollStaminaCost();
-        if (data.parkourStamina() < cost) {
-            player.displayClientMessage(Component.translatable("message.the_protocol.trait.parkour_roll_stamina").withStyle(ChatFormatting.RED), true);
-            return false;
-        }
-
-        Vec3 forward = player.getLookAngle();
-        Vec3 horizontal = new Vec3(forward.x, 0.0D, forward.z);
-        if (horizontal.lengthSqr() < 1.0E-4D) {
-            horizontal = new Vec3(0.0D, 0.0D, 1.0D);
-        } else {
-            horizontal = horizontal.normalize();
-        }
-
-        Vec3 currentMotion = player.getDeltaMovement();
-        Vec3 boosted = currentMotion.add(horizontal.scale(Config.parkourRollForwardStrength()));
-        player.setDeltaMovement(boosted.x, Math.min(boosted.y + Config.parkourRollVerticalBoost(), 0.6D), boosted.z);
-        player.resetFallDistance();
-
-        setData(player, data.withLastParkourRollTick(now).withParkourStamina(Math.max(0.0D, data.parkourStamina() - cost)));
-        syncParkourStaminaBar(player);
-        player.displayClientMessage(Component.translatable("message.the_protocol.trait.parkour_rolled").withStyle(ChatFormatting.GREEN), true);
-        return true;
+    public static boolean tryTriggerParkourRoll(ServerPlayer player, double inputDirX, double inputDirZ) {
+        return ParkourRollHandler.tryStartRoll(player, inputDirX, inputDirZ);
     }
 
     public static void regenerateParkourStamina(ServerPlayer player) {
@@ -369,16 +344,10 @@ public final class TraitService {
 
     private static PlayerTraitData normalizeParkourData(PlayerTraitData data) {
         if (data.lastParkourRollTick() < 0L) {
-            return data.withLastParkourRollTick(PARKOUR_ROLL_NOT_USED_TICK);
+            return data.withLastParkourRollTick(-1L);
         }
 
         return data;
-    }
-
-    private static PlayerTraitData resetParkourState(PlayerTraitData data) {
-        return normalizeParkourData(data)
-                .withLastParkourRollTick(PARKOUR_ROLL_NOT_USED_TICK)
-                .withParkourStamina(Config.parkourMaxStamina());
     }
 
     public static void giveMechanicStarterKit(ServerPlayer player) {

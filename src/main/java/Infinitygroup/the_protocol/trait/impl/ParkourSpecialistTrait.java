@@ -2,6 +2,7 @@ package Infinitygroup.the_protocol.trait.impl;
 
 import Infinitygroup.the_protocol.Config;
 import Infinitygroup.the_protocol.data.PlayerTraitData;
+import Infinitygroup.the_protocol.trait.ParkourRollHandler;
 import Infinitygroup.the_protocol.trait.AbstractTraitDefinition;
 import Infinitygroup.the_protocol.trait.TraitService;
 import net.minecraft.resources.ResourceLocation;
@@ -37,7 +38,7 @@ public final class ParkourSpecialistTrait extends AbstractTraitDefinition {
         }
 
         long now = player.level().getGameTime();
-        if (now - data.lastParkourRollTick() <= Config.parkourRollFallWindowTicks()) {
+        if (ParkourRollHandler.wasRecentRoll(data, now)) {
             event.setDamageMultiplier((float) (event.getDamageMultiplier() * Config.parkourRollDamageMultiplier()));
             player.displayClientMessage(Component.translatable("message.the_protocol.trait.parkour_roll").withStyle(ChatFormatting.GREEN), true);
             return;
