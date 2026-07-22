@@ -105,6 +105,7 @@ sourceSets.main.resources { srcDir 'src/generated/resources' }
 
 dependencies {
     implementation "maven.modrinth:wGKYL7st:${combat_roll_version}"
+    implementation "maven.modrinth:OypNE65K:${tacz_version}"
     runtimeOnly "maven.modrinth:gedNE4y2:${player_animator_version}"
     runtimeOnly "maven.modrinth:9s6osm5g:${cloth_config_version}"
     // Example mod dependency with JEI

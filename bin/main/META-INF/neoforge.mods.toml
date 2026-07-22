@@ -76,6 +76,14 @@ ordering = "AFTER"
 side = "BOTH"
 reason = "The PARKOUR profession uses the Combat Roll movement system."
 
+[[dependencies."the_protocol"]]
+modId = "tacz"
+type = "required"
+versionRange = "[1.1.8,2.0.0)"
+ordering = "AFTER"
+side = "BOTH"
+reason = "The SHOOTER profession uses TaCZ gun data, projectile damage, and optional weapon handling modifiers."
+
 # Features are specific properties of the game environment, that you may want to declare you require. This example declares
 # that your mod requires GL version 3.2 or higher. Other features will be added. They are side aware so declaring this won't
 # stop your mod loading on the server for example.
