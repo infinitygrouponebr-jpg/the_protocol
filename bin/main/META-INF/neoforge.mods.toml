@@ -68,6 +68,14 @@ versionRange = "[1.21.1,1.22)"
 ordering = "NONE"
 side = "BOTH"
 
+[[dependencies."the_protocol"]]
+modId = "combat_roll"
+type = "required"
+versionRange = "[2.0.6,3.0.0)"
+ordering = "AFTER"
+side = "BOTH"
+reason = "The PARKOUR profession uses the Combat Roll movement system."
+
 # Features are specific properties of the game environment, that you may want to declare you require. This example declares
 # that your mod requires GL version 3.2 or higher. Other features will be added. They are side aware so declaring this won't
 # stop your mod loading on the server for example.

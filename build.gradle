@@ -11,6 +11,18 @@ group = mod_group_id
 repositories {
     mavenLocal()
     mavenCentral()
+
+    exclusiveContent {
+        forRepository {
+            maven {
+                name = "Modrinth"
+                url = "https://api.modrinth.com/maven"
+            }
+        }
+        filter {
+            includeGroup "maven.modrinth"
+        }
+    }
 }
 
 base {
@@ -92,6 +104,9 @@ sourceSets.main.resources { srcDir 'src/generated/resources' }
 
 
 dependencies {
+    implementation "maven.modrinth:wGKYL7st:${combat_roll_version}"
+    runtimeOnly "maven.modrinth:gedNE4y2:${player_animator_version}"
+    runtimeOnly "maven.modrinth:9s6osm5g:${cloth_config_version}"
     // Example mod dependency with JEI
     // The JEI API is declared for compile time use, while the full JEI artifact is used at runtime
     // compileOnly "mezz.jei:jei-${mc_version}-common-api:${jei_version}"

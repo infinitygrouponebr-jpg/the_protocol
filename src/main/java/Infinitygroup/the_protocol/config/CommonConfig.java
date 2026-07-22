@@ -12,6 +12,8 @@ public final class CommonConfig {
     public static final ModConfigSpec.BooleanValue ENABLE_TACZ_COMPAT = BUILDER.define("enableTaczCompat", true);
     public static final ModConfigSpec.BooleanValue ENABLE_VEHICLE_COMPAT = BUILDER.define("enableVehicleCompat", true);
     public static final ModConfigSpec.BooleanValue ENABLE_MOVEMENT_PERKS = BUILDER.define("enableMovementPerks", true);
+    public static final ModConfigSpec.BooleanValue ENABLE_COMBAT_ROLL_COMPAT = BUILDER.define("enableCombatRollCompat", true);
+    public static final ModConfigSpec.BooleanValue RESTRICT_COMBAT_ROLL_TO_PARKOUR = BUILDER.define("restrictCombatRollToParkour", true);
     public static final ModConfigSpec.ConfigValue<String> STARTING_PROFESSION = BUILDER.define("startingProfession", "NONE");
     public static final ModConfigSpec.IntValue MAX_PROFESSION_LEVEL = BUILDER.defineInRange("maxProfessionLevel", 50, 1, 1_000);
     public static final ModConfigSpec.IntValue XP_PER_LEVEL_BASE = BUILDER.defineInRange("xpPerLevelBase", 100, 1, 1_000_000);

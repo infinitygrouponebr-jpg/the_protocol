@@ -1,6 +1,7 @@
 package Infinitygroup.the_protocol.profession;
 
 import Infinitygroup.the_protocol.config.CommonConfig;
+import Infinitygroup.the_protocol.compat.CombatRollCompat;
 import net.minecraft.server.level.ServerPlayer;
 
 public final class ProfessionManager {
@@ -13,6 +14,7 @@ public final class ProfessionManager {
 
     public static void setProfession(ServerPlayer player, ProfessionType profession) {
         player.setData(PlayerProfessionProvider.PROFESSION_DATA, new ProfessionData(profession, 0, 0, 0));
+        CombatRollCompat.refreshRollPermission(player);
     }
 
     public static void addExperience(ServerPlayer player, int amount) {
@@ -38,6 +40,7 @@ public final class ProfessionManager {
 
     public static void reset(ServerPlayer player) {
         player.setData(PlayerProfessionProvider.PROFESSION_DATA, ProfessionData.empty());
+        CombatRollCompat.refreshRollPermission(player);
     }
 
     public static int experienceRequiredForNextLevel(int currentLevel) {
