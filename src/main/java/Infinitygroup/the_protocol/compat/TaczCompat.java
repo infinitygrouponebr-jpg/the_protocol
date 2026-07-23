@@ -7,6 +7,7 @@ import Infinitygroup.the_protocol.profession.ProfessionType;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.network.chat.Component;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
@@ -24,6 +25,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 import java.util.WeakHashMap;
+import java.util.UUID;
 import java.util.function.Consumer;
 
 /**
@@ -39,6 +41,7 @@ public final class TaczCompat {
     private static final ResourceLocation HEAVY_WEAPON_SLOWDOWN_ID = ResourceLocation.fromNamespaceAndPath(
             SurvivalProfessionsMod.MOD_ID, "tacz_non_shooter_heavy_weapon_slowdown");
     private static final Map<Object, Double> ACCURACY_FACTORS = new WeakHashMap<>();
+    private static final Map<UUID, Long> MODIFY_DENIAL_MESSAGE_TICKS = new HashMap<>();
     private static boolean initialized;
 
     private TaczCompat() {
@@ -152,6 +155,28 @@ public final class TaczCompat {
 
     public static boolean isShooter(ServerPlayer player) {
         return ProfessionManager.get(player).profession() == ProfessionType.SHOOTER;
+    }
+
+    /** Server-authoritative permission for TaCZ attachment and gunsmith-table modifications. */
+    public static boolean canModifyTaczWeapons(ServerPlayer player) {
+        return !CommonConfig.TACZ_RESTRICT_ATTACHMENTS_TO_SHOOTER.get() || (isEnabled() && isShooter(player));
+    }
+
+    /** Sends a rate-limited denial only after a server-side modification attempt was rejected. */
+    public static void notifyTaczModificationDenied(ServerPlayer player) {
+        long gameTime = player.level().getGameTime();
+        UUID playerId = player.getUUID();
+        synchronized (MODIFY_DENIAL_MESSAGE_TICKS) {
+            long previous = MODIFY_DENIAL_MESSAGE_TICKS.getOrDefault(playerId, Long.MIN_VALUE);
+            if (gameTime - previous < 20L) {
+                return;
+            }
+            MODIFY_DENIAL_MESSAGE_TICKS.put(playerId, gameTime);
+            if (MODIFY_DENIAL_MESSAGE_TICKS.size() > 256) {
+                MODIFY_DENIAL_MESSAGE_TICKS.entrySet().removeIf(entry -> gameTime - entry.getValue() > 200L);
+            }
+        }
+        player.displayClientMessage(Component.translatable("message.the_protocol.tacz.modify_denied"), true);
     }
 
     public static boolean isEnabled() {

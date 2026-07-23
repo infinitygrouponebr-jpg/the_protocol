@@ -34,6 +34,9 @@ authors = "InfinityGroup" #optional
 # The description text for the mod (multi line!) (#mandatory)
 description = '''A modular foundation for survival professions, progression, and optional mod compatibility.'''
 
+[[mixins]]
+config = "the_protocol.mixins.json"
+
 # The [[accessTransformers]] block allows you to declare where your AT file is.
 # If this block is omitted, a fallback attempt will be made to load an AT from META-INF/accesstransformer.cfg
 #[[accessTransformers]]

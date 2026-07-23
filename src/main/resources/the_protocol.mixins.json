@@ -1,0 +1,14 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "Infinitygroup.the_protocol.mixin",
+  "compatibilityLevel": "JAVA_21",
+  "mixins": [
+    "tacz.ClientMessageRefitGunMixin",
+    "tacz.ClientMessageUnloadAttachmentMixin",
+    "tacz.GunSmithTableMenuMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

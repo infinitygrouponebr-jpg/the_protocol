@@ -10,6 +10,8 @@ public final class CommonConfig {
     public static final ModConfigSpec.BooleanValue ENABLE_PROFESSION_SYSTEM = BUILDER.define("enableProfessionSystem", true);
     public static final ModConfigSpec.BooleanValue ENABLE_DEBUG_COMMANDS = BUILDER.define("enableDebugCommands", true);
     public static final ModConfigSpec.BooleanValue ENABLE_TACZ_COMPAT = BUILDER.define("enableTaczCompat", true);
+    public static final ModConfigSpec.BooleanValue TACZ_RESTRICT_ATTACHMENTS_TO_SHOOTER =
+            BUILDER.define("tacz.restrictAttachmentsToShooter", true);
     public static final ModConfigSpec.BooleanValue TACZ_ENABLE_SHOOTER_BONUS = BUILDER.define("tacz.enableShooterBonus", true);
     public static final ModConfigSpec.BooleanValue TACZ_ENABLE_NON_SHOOTER_PENALTY = BUILDER.define("tacz.enableNonShooterPenalty", true);
     public static final ModConfigSpec.BooleanValue TACZ_ENABLE_XP_GAIN = BUILDER.define("tacz.enableXpGain", true);

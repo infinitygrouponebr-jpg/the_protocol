@@ -1,4 +1,5 @@
 {
   "item.the_protocol.profession_debug_tool": "Profession Debug Tool",
-  "itemGroup.the_protocol.survival_professions": "Survival Professions"
+  "itemGroup.the_protocol.survival_professions": "Survival Professions",
+  "message.the_protocol.tacz.modify_denied": "Only the SHOOTER profession can modify TaCZ weapons."
 }
