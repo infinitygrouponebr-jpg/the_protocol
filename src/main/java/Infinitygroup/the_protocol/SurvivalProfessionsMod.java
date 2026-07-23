@@ -6,6 +6,7 @@ import Infinitygroup.the_protocol.compat.TaczCompat;
 import Infinitygroup.the_protocol.config.CommonConfig;
 import Infinitygroup.the_protocol.event.PlayerProfessionEvents;
 import Infinitygroup.the_protocol.event.PlayerCombatEvents;
+import Infinitygroup.the_protocol.event.TaczMeleeEvents;
 import Infinitygroup.the_protocol.event.CombatRollProfessionEvents;
 import Infinitygroup.the_protocol.compat.CombatRollCompat;
 import Infinitygroup.the_protocol.registry.ModDataComponents;
@@ -34,6 +35,7 @@ public final class SurvivalProfessionsMod {
 
         NeoForge.EVENT_BUS.register(PlayerProfessionEvents.class);
         NeoForge.EVENT_BUS.register(PlayerCombatEvents.class);
+        NeoForge.EVENT_BUS.register(TaczMeleeEvents.class);
         NeoForge.EVENT_BUS.register(CombatRollProfessionEvents.class);
         TaczCompat.initialize();
         NeoForge.EVENT_BUS.addListener(this::registerCommands);

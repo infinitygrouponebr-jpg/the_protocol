@@ -41,7 +41,7 @@ public final class TaczCompat {
     private static final ResourceLocation HEAVY_WEAPON_SLOWDOWN_ID = ResourceLocation.fromNamespaceAndPath(
             SurvivalProfessionsMod.MOD_ID, "tacz_non_shooter_heavy_weapon_slowdown");
     private static final Map<Object, Double> ACCURACY_FACTORS = new WeakHashMap<>();
-    private static final Map<UUID, Long> MODIFY_DENIAL_MESSAGE_TICKS = new HashMap<>();
+    private static final Map<UUID, Long> DENIAL_MESSAGE_TICKS = new HashMap<>();
     private static boolean initialized;
 
     private TaczCompat() {
@@ -162,21 +162,41 @@ public final class TaczCompat {
         return !CommonConfig.TACZ_RESTRICT_ATTACHMENTS_TO_SHOOTER.get() || (isEnabled() && isShooter(player));
     }
 
-    /** Sends a rate-limited denial only after a server-side modification attempt was rejected. */
-    public static void notifyTaczModificationDenied(ServerPlayer player) {
+    /** Server-authoritative permission for the TaCZ weapon-bash action. */
+    public static boolean canUseTaczMelee(ServerPlayer player) {
+        return !CommonConfig.TACZ_RESTRICT_MELEE_TO_SHOOTER.get() || (isEnabled() && isShooter(player));
+    }
+
+    public static boolean shouldShowDeniedMessages() {
+        return CommonConfig.TACZ_SHOW_DENIED_MESSAGES.get();
+    }
+
+    /** Sends a translated, rate-limited denial only after an action was rejected on the server. */
+    public static void sendProfessionDeniedMessage(ServerPlayer player, String translationKey) {
+        if (!shouldShowDeniedMessages()) {
+            return;
+        }
         long gameTime = player.level().getGameTime();
         UUID playerId = player.getUUID();
-        synchronized (MODIFY_DENIAL_MESSAGE_TICKS) {
-            long previous = MODIFY_DENIAL_MESSAGE_TICKS.getOrDefault(playerId, Long.MIN_VALUE);
+        synchronized (DENIAL_MESSAGE_TICKS) {
+            long previous = DENIAL_MESSAGE_TICKS.getOrDefault(playerId, Long.MIN_VALUE);
             if (gameTime - previous < 20L) {
                 return;
             }
-            MODIFY_DENIAL_MESSAGE_TICKS.put(playerId, gameTime);
-            if (MODIFY_DENIAL_MESSAGE_TICKS.size() > 256) {
-                MODIFY_DENIAL_MESSAGE_TICKS.entrySet().removeIf(entry -> gameTime - entry.getValue() > 200L);
+            DENIAL_MESSAGE_TICKS.put(playerId, gameTime);
+            if (DENIAL_MESSAGE_TICKS.size() > 256) {
+                DENIAL_MESSAGE_TICKS.entrySet().removeIf(entry -> gameTime - entry.getValue() > 200L);
             }
         }
-        player.displayClientMessage(Component.translatable("message.the_protocol.tacz.modify_denied"), true);
+        player.displayClientMessage(Component.translatable(translationKey), true);
+    }
+
+    public static void notifyTaczModificationDenied(ServerPlayer player) {
+        sendProfessionDeniedMessage(player, "message.the_protocol.tacz.modify_denied");
+    }
+
+    public static void notifyMeleeDenied(ServerPlayer player) {
+        sendProfessionDeniedMessage(player, "message.the_protocol.tacz.melee_denied");
     }
 
     public static boolean isEnabled() {

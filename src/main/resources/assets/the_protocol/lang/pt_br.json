@@ -1,5 +1,7 @@
 {
   "item.the_protocol.profession_debug_tool": "Ferramenta de Debug de Profissão",
   "itemGroup.the_protocol.survival_professions": "Profissões de Sobrevivência",
+  "message.the_protocol.profession.denied_generic": "Você não possui o conhecimento necessário para fazer isso.",
+  "message.the_protocol.tacz.melee_denied": "Apenas a profissão SHOOTER sabe executar coronhadas com armas TaCZ.",
   "message.the_protocol.tacz.modify_denied": "Apenas a profissão SHOOTER pode modificar armas TaCZ."
 }
