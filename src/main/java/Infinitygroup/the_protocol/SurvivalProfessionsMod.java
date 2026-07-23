@@ -12,6 +12,7 @@ import Infinitygroup.the_protocol.compat.CombatRollCompat;
 import Infinitygroup.the_protocol.registry.ModDataComponents;
 import Infinitygroup.the_protocol.registry.ModItems;
 import Infinitygroup.the_protocol.registry.ModTabs;
+import Infinitygroup.the_protocol.network.RollDeniedAttemptPayload;
 import com.mojang.logging.LogUtils;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.ModContainer;
@@ -20,6 +21,7 @@ import net.neoforged.fml.event.config.ModConfigEvent;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.server.ServerLifecycleHooks;
 import net.neoforged.neoforge.event.RegisterCommandsEvent;
+import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
 import org.slf4j.Logger;
 
 @Mod(SurvivalProfessionsMod.MOD_ID)
@@ -40,6 +42,7 @@ public final class SurvivalProfessionsMod {
         TaczCompat.initialize();
         NeoForge.EVENT_BUS.addListener(this::registerCommands);
         modEventBus.addListener(this::onConfigReload);
+        modEventBus.addListener(this::registerPayloadHandlers);
 
         LOGGER.info("{} loaded. TaCZ: {}, vehicle mods: {}, MicroTech: {}", MOD_ID,
                 CompatManager.isTaczLoaded(), CompatManager.isVehicleModLoaded(), CompatManager.isMicroTechLoaded());
@@ -47,6 +50,11 @@ public final class SurvivalProfessionsMod {
 
     private void registerCommands(RegisterCommandsEvent event) {
         ProfessionCommand.register(event.getDispatcher());
+    }
+
+    private void registerPayloadHandlers(RegisterPayloadHandlersEvent event) {
+        event.registrar("1").playToServer(RollDeniedAttemptPayload.TYPE,
+                RollDeniedAttemptPayload.STREAM_CODEC, RollDeniedAttemptPayload::handle);
     }
 
     private void onConfigReload(ModConfigEvent.Reloading event) {

@@ -42,6 +42,11 @@ public final class CombatRollCompat {
         return shouldRestrictRoll() && ProfessionManager.get(player).profession() == ProfessionType.PARKOUR;
     }
 
+    /** Uses the shared profession-feedback cooldown after the server validates a denied roll input. */
+    public static void notifyRollDenied(ServerPlayer player) {
+        TaczCompat.sendProfessionDeniedMessage(player, "message.the_protocol.combat_roll.denied");
+    }
+
     public static void refreshRollPermission(ServerPlayer player) {
         if (!isAvailable()) {
             return;

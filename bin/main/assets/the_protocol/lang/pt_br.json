@@ -3,5 +3,6 @@
   "itemGroup.the_protocol.survival_professions": "Profissões de Sobrevivência",
   "message.the_protocol.profession.denied_generic": "Você não possui o conhecimento necessário para fazer isso.",
   "message.the_protocol.tacz.melee_denied": "Apenas a profissão SHOOTER sabe executar coronhadas com armas TaCZ.",
-  "message.the_protocol.tacz.modify_denied": "Apenas a profissão SHOOTER pode modificar armas TaCZ."
+  "message.the_protocol.tacz.modify_denied": "Apenas a profissão SHOOTER pode modificar armas TaCZ.",
+  "message.the_protocol.combat_roll.denied": "Apenas a profissão PARKOUR sabe usar rolamentos de combate."
 }
